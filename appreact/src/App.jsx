@@ -1,26 +1,28 @@
 import React from "react";
-import Header from "./Header";
-import Home from "./Home";
-import Produtos from "./Produtos";
-import Footer from "./Footer";
-
+import Produto from "./Produto";
 
 const App = () => {
-  let Pagina = Home;
-  const {pathname} = window.location;
+  const [dados, setDados] = React.useState(null);
+  const [carregando, setCarregando] = React.useState(null);
 
-  if (pathname === '/produtos') {
-    Pagina = Produtos;
-  } else {
-    Pagina = Home;
+  async function handleClick(event) {
+    setCarregando(true);
+    const response = await fetch(
+      `https://ranekapi.origamid.dev/json/api/produto/${event.target.innerText}`,
+    );
+    const json = await response.json();
+    setDados(json);
+    setCarregando(false);
   }
 
   return (
-    <React.Fragment>
-      <Header />
-      <Pagina />
-      <Footer />
-    </React.Fragment>
+    <div>
+      <button onClick={handleClick}>smartphone</button>
+      <button onClick={handleClick}>tablet</button>
+      <button onClick={handleClick}>notebook</button>
+      {carregando && <p>Carregando...</p>}
+      {!carregando && dados && <Produto dados={dados} />}
+    </div>
   );
 };
 
