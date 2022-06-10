@@ -1,17 +1,95 @@
-import React from 'react';
-import useFetch from './useFetch';
+import React from "react";
+
+const formFields = [
+  {
+    id: "nome",
+    label: "Nome",
+    type: "text",
+  },
+  {
+    id: "email",
+    label: "E-mail",
+    type: "email",
+  },
+  {
+    id: "senha",
+    label: "Senha",
+    type: "password",
+  },
+  {
+    id: "cep",
+    label: "CEP",
+    type: "number",
+  },
+  {
+    id: "numero",
+    label: "Número",
+    type: "number",
+  },
+  {
+    id: "rua",
+    label: "Rua",
+    type: "text",
+  },
+  {
+    id: "bairro",
+    label: "Bairro",
+    type: "text",
+  },
+  {
+    id: "cidade",
+    label: "Cidade",
+    type: "text",
+  },
+  {
+    id: "estado",
+    label: "Estado",
+    type: "text",
+  },
+];
 
 const App = () => {
-  const { data, loading, error, request } = useFetch();
+  const [form, setForm] = React.useState(
+    formFields.reduce((acc, field) => {
+      return {
+        ...acc,
+        [field.id]: "",
+      };
+    }, {})
+  );
 
-  React.useEffect(() => {
-    request('https://ranekapi.origamid.dev/json/api/produto/notebook');
-  }, [request]);
+  const [response, setResponse] = React.useState(null);
 
-  if (error) return <p>{error}</p>;
-  if (loading) return <p>Carregando...</p>;
-  if (data) return <div>{data.nome}</div>;
-  else return null;
+  function handleChange({ target }) {
+    const { id, value } = target;
+    setForm({ ...form, [id]: value });
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    fetch("https://ranekapi.origamid.dev/json/api/usuario", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    }).then((response) => {
+      setResponse(response);
+    });
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {formFields.map(({ id, label, type }) => (
+        <div key={id}>
+          <label htmlFor={id}>{label}</label>
+          <input type={type} id={id} value={form[id]} onChange={handleChange} />
+        </div>
+      ))}
+      {response && response.ok && <p>Formulário enviado</p>}
+      <button>Enviar</button>
+    </form>
+  );
 };
 
 export default App;
